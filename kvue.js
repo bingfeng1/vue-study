@@ -160,6 +160,12 @@ class Compile {
                 const dir = attrName.substring(2)
                 // 执行指令
                 this[dir] && this[dir](node, exp)
+            } else if (attrName.startsWith('@')) {
+                // 截取事件
+                const event = attrName.substring(1)
+                console.log(node,event,this.$vm)
+                // 绑定事件
+                this.doEvent(node, event, this.$vm.$options.methods[exp])
             }
 
         })
@@ -167,6 +173,11 @@ class Compile {
 
     isDirective(attrName) {
         return attrName.indexOf('k-') === 0
+    }
+
+    // 处理事件
+    doEvent(node, event, method) {
+        node.addEventListener(event, method.bind(this.$vm))
     }
 
     // 所有动态节点都需要创建更新函数，以及对应watcher实例
