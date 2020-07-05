@@ -21,19 +21,23 @@ class Store {
 
         // getters
         this.getters = Object.create(null)
+        this._wrappedGetters = options.getters
 
         const computed = {}
         // 1、遍历用户传入getters所有key，动态赋值，其值应该是函数执行结果
-        Object.keys(options.getters).forEach(key => {
+        Object.keys(this._wrappedGetters).forEach(key => {
+
+            console.log(this._wrappedGetters)
+            const fn = this._wrappedGetters[key]
             // 2、确保它是响应式的
             // Object.defineProperty(this.getters,key,{get(){}})
             computed[key] = () => {
-                return options.getters[key](key)
+                return fn(store.state)
             }
 
             Object.defineProperty(this.getters, key, {
                 get() {
-                    return options.getters[key](store.state)
+                    return store._vm[key]
                 },
                 enumerable: true
             })

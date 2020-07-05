@@ -1,3 +1,4 @@
+import View from './krouter-view'
 let KVue;
 
 // 插件
@@ -7,15 +8,19 @@ class KVueRouter {
         this.$options = options
 
         // 响应式数据
-        const initial = window.location.hash.slice(1) || '/'
+        // const initial = window.location.hash.slice(1) || '/'
 
         //????????????????????????????????????????????????????
-        KVue.util.defineReactive(this, 'current', initial)
+        // KVue.util.defineReactive(this, 'current', initial)
+        this.current = window.location.hash.slice(1) || '/'
+        KVue.util.defineReactive(this, 'matched', [])
+        // match方法可以递归遍历路由表，获取匹配的关系数组
+        this.match()
 
-        this.routeMap = {}
-        this.$options.routes.forEach(route => {
-            this.routeMap[route.path] = route
-        })
+        // this.routeMap = {}
+        // this.$options.routes.forEach(route => {
+        //     this.routeMap[route.path] = route
+        // })
 
         // 监听事件
         window.addEventListener('hashchange', this.onHashCnage.bind(this))
@@ -24,6 +29,33 @@ class KVueRouter {
 
     onHashCnage() {
         this.current = window.location.hash.slice(1)
+
+        this.matched = []
+        this.match()
+    }
+
+    match(routes) {
+        routes = routes || this.$options.routes
+
+        // 递归遍历
+        for (const route of routes) {
+            if (route.path === '/' && this.current === '/') {
+                this.matched.push(route)
+                return
+            }
+
+            // /about/info
+            if (route.path !== '/' && this.current.indexOf(route.path) != -1) {
+                this.matched.push(route)
+
+                if(route.children){
+                    this.match(route.children)
+                }
+
+                return 
+            }
+        }
+
     }
 }
 
@@ -60,16 +92,7 @@ KVueRouter.install = (Vue) => {
             }, this.$slots.default)
         }
     })
-    Vue.component('router-view', {
-        render(h) {
-            // 获取路由实例
-            const current = this.$router.current
-
-            const {component} = this.$router.routeMap[current] || null
-
-            return h(component)
-        }
-    })
+    Vue.component('router-view', View)
 }
 
 
