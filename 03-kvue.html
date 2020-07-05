@@ -11,13 +11,16 @@
 <body>
     <div id="app">
         <p>{{counter}}</p>
+        <p k-text="counter"></p>
+        <p k-html="desc"></p>
     </div>
 
     <script>
         const app = new KVue({
             el: '#app',
             data: {
-                counter: 1
+                counter: 1,
+                desc: 'kvue<span style="color:red;">222222222辅导费付付付</span>'
             }
         })
 
